@@ -1,88 +1,131 @@
 DROP DATABASE IF EXISTS `db_lecture`;
-CREATE DATABASE `db_lecture`;
+
+CREATE DATABASE `db_lecture` DEFAULT CHARACTER SET utf8mb4;
+
 USE `db_lecture`;
 
 DROP TABLE IF EXISTS `students`;
+
 CREATE TABLE `students` (
-  `id` int PRIMARY KEY,
-  `grade` int NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `phone_number` varchar(255) NOT NULL,
-  `identity_number` int UNIQUE NOT NULL,
-  `facility_name` varchar(255),
-  `department_id` varchar(255) NOT NULL,
-  `professor_id` int NOT NULL
-);
+  `id` INT(11) PRIMARY KEY,
+  `grade` INT(11) NOT NULL,
+  `name` VARCHAR(255) NOT NULL,
+  `phone_number` VARCHAR(255) NOT NULL,
+  `identity_number` INT(11) UNIQUE NOT NULL,
+  `facility_name` VARCHAR(255),
+  `department_id` VARCHAR(255) NOT NULL,
+  `professor_id` INT(11) NOT NULL
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 DROP TABLE IF EXISTS `departments`;
+
 CREATE TABLE `departments` (
-  `id` varchar(255) PRIMARY KEY,
-  `location` int NOT NULL,
-  `name` varchar(255) UNIQUE NOT NULL,
-  `college` varchar(255) NOT NULL,
-  `graduate_point` int NOT NULL,
-  `max_student` int NOT NULL
-);
+  `id` VARCHAR(255) PRIMARY KEY,
+  `location` INT(11) NOT NULL,
+  `name` VARCHAR(255) UNIQUE NOT NULL,
+  `college` VARCHAR(255) NOT NULL,
+  `graduate_poINT(11)` INT(11) NOT NULL,
+  `max_student` INT(11) NOT NULL
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 DROP TABLE IF EXISTS `professors`;
+
 CREATE TABLE `professors` (
-  `id` int PRIMARY KEY,
-  `name` varchar(255) NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `location` int UNIQUE NOT NULL,
-  `major` varchar(255) NOT NULL,
-  `facility_name` varchar(255) NOT NULL
-);
+  `id` INT(11) PRIMARY KEY,
+  `name` VARCHAR(255) NOT NULL,
+  `email` VARCHAR(255) NOT NULL,
+  `location` INT(11) UNIQUE NOT NULL,
+  `major` VARCHAR(255) NOT NULL,
+  `facility_name` VARCHAR(255) UNIQUE DEFAULT NULL
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 DROP TABLE IF EXISTS `lectures`;
+
 CREATE TABLE `lectures` (
-  `id` int PRIMARY KEY,
-  `name` varchar(255) NOT NULL,
-  `target_grade` int NOT NULL,
-  `point` int NOT NULL,
-  `max_student` int NOT NULL,
-  `professor_id` int NOT NULL
-);
+  `id` INT(11) PRIMARY KEY,
+  `name` VARCHAR(255) NOT NULL,
+  `target_grade` INT(11) NOT NULL,
+  `poINT(11)` INT(11) NOT NULL,
+  `max_student` INT(11) NOT NULL,
+  `professor_id` INT(11) NOT NULL
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 DROP TABLE IF EXISTS `facilities`;
+
 CREATE TABLE `facilities` (
-  `name` varchar(255) PRIMARY KEY,
-  `position` int NOT NULL,
-  `area` int NOT NULL,
-  `homepage_url` int NOT NULL,
-  `tel_number` varchar(255) NOT NULL,
-  `professor_id` int NOT NULL
-);
+  `name` VARCHAR(255) PRIMARY KEY,
+  `position` INT(11) NOT NULL,
+  `area` INT(11) NOT NULL,
+  `homepage_url` INT(11) NOT NULL,
+  `tel_number` VARCHAR(255) NOT NULL,
+  `professor_id` INT(11) UNIQUE NOT NULL
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 DROP TABLE IF EXISTS `professors_departments`;
+
 CREATE TABLE `professors_departments` (
-  `professor_id` int NOT NULL,
-  `department_id` varchar(255) NOT NULL
-);
+  `professor_id` INT(11) NOT NULL,
+  `department_id` VARCHAR(255) NOT NULL
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 DROP TABLE IF EXISTS `students_lectures`;
+
 CREATE TABLE `students_lectures` (
-  `student_id` int NOT NULL,
-  `lecture_id` int NOT NULL
-);
+  `student_id` INT(11) NOT NULL,
+  `lecture_id` INT(11) NOT NULL
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
-ALTER TABLE `students` ADD FOREIGN KEY (`facility_name`) REFERENCES `facilities` (`name`);
+ALTER TABLE
+  `students`
+ADD
+  FOREIGN KEY (`facility_name`) REFERENCES `facilities` (`name`) ON DELETE SET NULL;
 
-ALTER TABLE `students` ADD FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`);
+ALTER TABLE
+  `students`
+ADD
+  FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`);
 
-ALTER TABLE `students` ADD FOREIGN KEY (`professor_id`) REFERENCES `professors` (`id`);
+ALTER TABLE
+  `students`
+ADD
+  FOREIGN KEY (`professor_id`) REFERENCES `professors` (`id`);
 
-ALTER TABLE `students_lectures` ADD FOREIGN KEY (`student_id`) REFERENCES `students` (`id`);
+ALTER TABLE
+  `students_lectures`
+ADD
+  FOREIGN KEY (`student_id`) REFERENCES `students` (`id`);
 
-ALTER TABLE `students_lectures` ADD FOREIGN KEY (`lecture_id`) REFERENCES `lectures` (`id`);
+ALTER TABLE
+  `students_lectures`
+ADD
+  FOREIGN KEY (`lecture_id`) REFERENCES `lectures` (`id`);
 
-ALTER TABLE `professors_departments` ADD FOREIGN KEY (`professor_id`) REFERENCES `professors` (`id`);
+ALTER TABLE
+  `professors_departments`
+ADD
+  FOREIGN KEY (`professor_id`) REFERENCES `professors` (`id`);
 
-ALTER TABLE `professors_departments` ADD FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`);
+ALTER TABLE
+  `professors_departments`
+ADD
+  FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`);
 
-ALTER TABLE `facilities` ADD FOREIGN KEY (`name`) REFERENCES `departments` (`id`);
+ALTER TABLE
+  `facilities`
+ADD
+  FOREIGN KEY (`name`) REFERENCES `departments` (`id`);
 
-ALTER TABLE `lectures` ADD FOREIGN KEY (`id`) REFERENCES `professors` (`id`);
+ALTER TABLE
+  `lectures`
+ADD
+  FOREIGN KEY (`id`) REFERENCES `professors` (`id`);
 
-ALTER TABLE `facilities` ADD FOREIGN KEY (`professor_id`) REFERENCES `professors` (`id`);
-ALTER TABLE `professors` ADD FOREIGN KEY (`facility_name`) REFERENCES `facilities` (`name`);
+ALTER TABLE
+  `facilities`
+ADD
+  FOREIGN KEY (`professor_id`) REFERENCES `professors` (`id`);
+
+ALTER TABLE
+  `professors`
+ADD
+  FOREIGN KEY (`facility_name`) REFERENCES `facilities` (`name`);

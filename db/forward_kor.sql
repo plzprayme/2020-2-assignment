@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS `20180639_황성찬_DB실습`.`학과` (
     `계열` VARCHAR(255) NOT NULL,
     `졸업학점` INT(11) NOT NULL,
     `학과정원` INT(11) NOT NULL
-) ENGINE = InnoDB;
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `20180639_황성찬_DB실습`.`교수` (
     `사번` INT(11) NOT NULL PRIMARY KEY,
@@ -62,6 +62,16 @@ CREATE TABLE IF NOT EXISTS `20180639_황성찬_DB실습`.`학생_수업` (
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 ALTER TABLE
+    `20180639_황성찬_DB실습`.`학생`
+ADD
+    FOREIGN KEY (`소속학과`) REFERENCES `20180639_황성찬_DB실습`.`학과` (`학과코드`);
+
+ALTER TABLE
+    `20180639_황성찬_DB실습`.`학생`
+ADD
+    FOREIGN KEY (`소속실험실`) REFERENCES `20180639_황성찬_DB실습`.`실험실` (`이름`);
+
+ALTER TABLE
     `20180639_황성찬_DB실습`.`학생_수업`
 ADD
     FOREIGN KEY (`학생`) REFERENCES `20180639_황성찬_DB실습`.`학생` (`학번`);
@@ -75,16 +85,6 @@ ALTER TABLE
     `20180639_황성찬_DB실습`.`학생`
 ADD
     FOREIGN KEY (`멘토교수`) REFERENCES `20180639_황성찬_DB실습`.`교수` (`사번`);
-
-ALTER TABLE
-    `20180639_황성찬_DB실습`.`학생`
-ADD
-    FOREIGN KEY (`소속학과`) REFERENCES `20180639_황성찬_DB실습`.`학과` (`학과코드`);
-
-ALTER TABLE
-    `20180639_황성찬_DB실습`.`학생`
-ADD
-    FOREIGN KEY (`소속실험실`) REFERENCES `20180639_황성찬_DB실습`.`실험실` (`이름`);
 
 ALTER TABLE
     `20180639_황성찬_DB실습`.`교수_학과`
