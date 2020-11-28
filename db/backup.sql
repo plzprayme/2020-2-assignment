@@ -20,12 +20,12 @@ CREATE TABLE `students` (
 DROP TABLE IF EXISTS `departments`;
 
 CREATE TABLE `departments` (
-  `id` VARCHAR(255) PRIMARY KEY,
-  `location` INT(11) NOT NULL,
-  `name` VARCHAR(255) UNIQUE NOT NULL,
-  `college` VARCHAR(255) NOT NULL,
-  `graduate_poINT(11)` INT(11) NOT NULL,
-  `max_student` INT(11) NOT NULL
+  `id` VARCHAR(5) PRIMARY KEY,
+  `location` INT(6) NOT NULL,
+  `name` VARCHAR(20) UNIQUE NOT NULL,
+  `college` VARCHAR(10) NOT NULL,
+  `graduate_point` INT(3) NOT NULL,
+  `max_student` INT(3) NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 DROP TABLE IF EXISTS `professors`;
@@ -129,3 +129,10 @@ ALTER TABLE
   `professors`
 ADD
   FOREIGN KEY (`facility_name`) REFERENCES `facilities` (`name`);
+
+  
+
+INSERT INTO 
+`departments` (`id`, `location`, `name`, `college`, `graduate_point`, `max_student`)
+VALUES
+("ENG01", 90201, "컴퓨터공학과", "공과대학", 136, 60);
