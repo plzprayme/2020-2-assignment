@@ -1,0 +1,117 @@
+DROP SCHEMA IF EXISTS `20180639_황성찬_DB실습`;
+
+CREATE SCHEMA IF NOT EXISTS `20180639_황성찬_DB실습` DEFAULT CHARACTER SET utf8mb4;
+
+USE `20180639_황성찬_DB실습`;
+
+CREATE TABLE IF NOT EXISTS `20180639_황성찬_DB실습`.`학과` (
+    `학과코드` VARCHAR(255) NOT NULL PRIMARY KEY,
+    `위치` INT(11) NOT NULL,
+    `이름` VARCHAR(255) NOT NULL,
+    `계열` VARCHAR(255) NOT NULL,
+    `졸업학점` INT(11) NOT NULL,
+    `학과정원` INT(11) NOT NULL
+) ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS `20180639_황성찬_DB실습`.`교수` (
+    `사번` INT(11) NOT NULL PRIMARY KEY,
+    `이름` VARCHAR(255) NOT NULL,
+    `이메일` VARCHAR(255) NOT NULL,
+    `연구실위치` INT(11) NOT NULL,
+    `전공분야` VARCHAR(255) NOT NULL,
+    `담당실험실` VARCHAR(255) NOT NULL
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `20180639_황성찬_DB실습`.`실험실` (
+    `이름` VARCHAR(255) NOT NULL PRIMARY KEY,
+    `위치` INT(11) NOT NULL,
+    `면적` INT(11) NOT NULL,
+    `홈페이지` INT(11) NOT NULL,
+    `전화번호` VARCHAR(255) NOT NULL,
+    `담당교수` INT(11) NOT NULL
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `20180639_황성찬_DB실습`.`수업` (
+    `학수번호` INT(11) NOT NULL PRIMARY KEY,
+    `이름` VARCHAR(255) NOT NULL,
+    `수강학년` INT(11) NOT NULL,
+    `학점` INT(11) NOT NULL,
+    `수강정원` INT(11) NOT NULL,
+    `담당교수` INT(11) NOT NULL
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `20180639_황성찬_DB실습`.`교수_학과` (
+    `교수` INT(11) NOT NULL,
+    `학과` VARCHAR(255) NOT NULL
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `20180639_황성찬_DB실습`.`학생` (
+    `학번` INT(11) NOT NULL PRIMARY KEY,
+    `학년` INT(11) NOT NULL,
+    `이름` VARCHAR(255) NOT NULL,
+    `전화번호` VARCHAR(255) NOT NULL,
+    `주민등록번호` INT(11) NOT NULL,
+    `소속실험실` VARCHAR(255) NULL DEFAULT NULL,
+    `소속학과` VARCHAR(255) NOT NULL,
+    `멘토교수` INT(11) NOT NULL
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `20180639_황성찬_DB실습`.`학생_수업` (
+    `학생` INT(11) NOT NULL,
+    `수업` INT(11) NOT NULL
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
+ALTER TABLE
+    `20180639_황성찬_DB실습`.`학생_수업`
+ADD
+    FOREIGN KEY (`학생`) REFERENCES `20180639_황성찬_DB실습`.`학생` (`학번`);
+
+ALTER TABLE
+    `20180639_황성찬_DB실습`.`학생_수업`
+ADD
+    FOREIGN KEY (`수업`) REFERENCES `20180639_황성찬_DB실습`.`수업` (`학수번호`);
+
+ALTER TABLE
+    `20180639_황성찬_DB실습`.`학생`
+ADD
+    FOREIGN KEY (`멘토교수`) REFERENCES `20180639_황성찬_DB실습`.`교수` (`사번`);
+
+ALTER TABLE
+    `20180639_황성찬_DB실습`.`학생`
+ADD
+    FOREIGN KEY (`소속학과`) REFERENCES `20180639_황성찬_DB실습`.`학과` (`학과코드`);
+
+ALTER TABLE
+    `20180639_황성찬_DB실습`.`학생`
+ADD
+    FOREIGN KEY (`소속실험실`) REFERENCES `20180639_황성찬_DB실습`.`실험실` (`이름`);
+
+ALTER TABLE
+    `20180639_황성찬_DB실습`.`교수_학과`
+ADD
+    FOREIGN KEY (`학과`) REFERENCES `20180639_황성찬_DB실습`.`학과` (`학과코드`);
+
+ALTER TABLE
+    `20180639_황성찬_DB실습`.`교수_학과`
+ADD
+    FOREIGN KEY (`교수`) REFERENCES `20180639_황성찬_DB실습`.`교수` (`사번`);
+
+ALTER TABLE
+    `20180639_황성찬_DB실습`.`수업`
+ADD
+    FOREIGN KEY (`담당교수`) REFERENCES `20180639_황성찬_DB실습`.`교수` (`사번`);
+
+ALTER TABLE
+    `20180639_황성찬_DB실습`.`실험실`
+ADD
+    FOREIGN KEY (`담당교수`) REFERENCES `20180639_황성찬_DB실습`.`교수` (`사번`);
+
+ALTER TABLE
+    `20180639_황성찬_DB실습`.`실험실`
+ADD
+    FOREIGN KEY (`이름`) REFERENCES `20180639_황성찬_DB실습`.`학과` (`학과코드`);
+
+ALTER TABLE
+    `20180639_황성찬_DB실습`.`교수`
+ADD
+    FOREIGN KEY (`담당실험실`) REFERENCES `20180639_황성찬_DB실습`.`실험실` (`이름`);
