@@ -31,8 +31,7 @@ CREATE TABLE `professors` (
   `name` VARCHAR(10) NOT NULL,
   `email` VARCHAR(30) NOT NULL,
   `location` INT(6) UNIQUE NOT NULL,
-  `major` VARCHAR(30) NOT NULL,
-  `facility_name` VARCHAR(30) UNIQUE DEFAULT NULL
+  `major` VARCHAR(30) NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 DROP TABLE IF EXISTS `lectures`;
@@ -51,8 +50,13 @@ CREATE TABLE `facilities` (
   `position` INT(11) NOT NULL,
   `area` INT(11) NOT NULL,
   `homepage_url` INT(11) NOT NULL,
-  `tel_number` VARCHAR(255) NOT NULL,
-  `professor_id` INT(11) UNIQUE NOT NULL
+  `tel_number` VARCHAR(255) NOT NULL
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
+DROP TABLE IF EXISTS `professors_facilities`;
+CREATE TABLE `professors_facilities` (
+  `professor_id` INT(5) NOT NULL UNIQUE,
+  `facility_name` VARCHAR(5) NOT NULL UNIQUE
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 DROP TABLE IF EXISTS `professors_departments`;
@@ -67,12 +71,25 @@ CREATE TABLE `students_lectures` (
   `lecture_id` INT(11) NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
+
+-- 교수 실험실 1:1 매핑
+ALTER TABLE 
+ `professors_facilities`
+ ADD FOREIGN KEY (`professor_id`) REFERENCES `professors` (`id`) 
+ON UPDATE CASCADE;
+
+ALTER TABLE
+ `professors_facilities`
+ADD FOREIGN KEY (`facility_name`) REFERENCES `facilities` (`name`)
+ON UPDATE CASCADE;
+-- 교수 실험실 1:1 매핑 끝
+
+
 ALTER TABLE
   `students`
 ADD
-  FOREIGN KEY (`facility_name`) REFERENCES `facilities` (`name`) ON DELETE
-SET
-  NULL;
+  FOREIGN KEY (`facility_name`) REFERENCES `facilities` (`name`) 
+ON DELETE SET NULL;
 
 ALTER TABLE
   `students`
@@ -114,15 +131,6 @@ ALTER TABLE
 ADD
   FOREIGN KEY (`id`) REFERENCES `professors` (`id`);
 
-ALTER TABLE
-  `facilities`
-ADD
-  FOREIGN KEY (`professor_id`) REFERENCES `professors` (`id`);
-
-ALTER TABLE
-  `professors`
-ADD
-  FOREIGN KEY (`facility_name`) REFERENCES `facilities` (`name`);
 
 -- 학과 생성 코드 
 INSERT INTO
