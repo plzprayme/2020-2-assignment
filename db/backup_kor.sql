@@ -31,23 +31,6 @@ ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
 
--- -----------------------------------------------------
--- Table `실험실`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `실험실` ;
-CREATE TABLE IF NOT EXISTS `실험실` (
-  `이름` VARCHAR(20) NOT NULL,
-  `위치` INT(6) NOT NULL,
-  `면적` INT(6) NOT NULL,
-  `홈페이지` VARCHAR(50) NOT NULL,
-  `전화번호` INT(4) NOT NULL,
-  `소속학과` VARCHAR(5) NOT NULL,
-  PRIMARY KEY (`이름`),
-  CONSTRAINT `facilities_ibfk_1`
-    FOREIGN KEY (`소속학과`)
-    REFERENCES `학과` (`학과코드`) ON UPDATE CASCADE)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4;
 
 
 -- -----------------------------------------------------
@@ -65,6 +48,28 @@ CREATE TABLE IF NOT EXISTS `교수` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 ALTER TABLE `교수` AUTO_INCREMENT=10000;
+
+-- -----------------------------------------------------
+-- Table `실험실`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `실험실` ;
+CREATE TABLE IF NOT EXISTS `실험실` (
+  `이름` VARCHAR(20) NOT NULL,
+  `위치` INT(6) NOT NULL,
+  `면적` INT(6) NOT NULL,
+  `홈페이지` VARCHAR(50) NOT NULL,
+  `전화번호` INT(4) NOT NULL,
+  `소속학과` VARCHAR(5) NOT NULL,
+  `담당교수` INT(5) NOT NULL UNIQUE,
+  PRIMARY KEY (`이름`),
+  CONSTRAINT `facilities_ibfk_1`
+    FOREIGN KEY (`소속학과`)
+    REFERENCES `학과` (`학과코드`) ON UPDATE CASCADE,
+  CONSTRAINT `facilities_ibfk_2`
+    FOREIGN KEY (`담당교수`)
+    REFERENCES `교수` (`사번`) ON UPDATE CASCADE)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4;
 
 
 -- -----------------------------------------------------
@@ -102,26 +107,6 @@ CREATE TABLE IF NOT EXISTS `교수_학과` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
-
--- -----------------------------------------------------
--- Table `교수_실험실`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `교수_실험실` ;
-CREATE TABLE IF NOT EXISTS `교수_실험실` (
-  `담당교수` INT(5) NOT NULL,
-  `실험실` VARCHAR(5) NOT NULL,
-  UNIQUE INDEX `professor_id` (`담당교수` ASC),
-  UNIQUE INDEX `facility_name` (`실험실` ASC),
-  CONSTRAINT `professors_facilities_ibfk_1`
-    FOREIGN KEY (`담당교수`)
-    REFERENCES `교수` (`사번`) ON UPDATE CASCADE ON DELETE CASCADE,
-  CONSTRAINT `professors_facilities_ibfk_2`
-    FOREIGN KEY (`실험실`)
-    REFERENCES `실험실` (`이름`) ON UPDATE CASCADE)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4;
-
-
 -- -----------------------------------------------------
 -- Table `학생`
 -- -----------------------------------------------------
@@ -132,7 +117,7 @@ CREATE TABLE IF NOT EXISTS `학생` (
   `이름` VARCHAR(20) NOT NULL,
   `전화번호` INT(11) NOT NULL,
   `주민등록번호` VARCHAR(14) NOT NULL,
-  `소속실험실` VARCHAR(20) NULL DEFAULT NULL,
+  `소속실험실` VARCHAR(20) DEFAULT NULL,
   `소속학과` VARCHAR(5) NOT NULL,
   `멘토교수` INT(5) NOT NULL,
   PRIMARY KEY (`학번`),
@@ -213,18 +198,18 @@ VALUES
 
 -- 실험실 생성 쿼리
 INSERT INTO
-  `실험실` (`이름`, `위치`, `면적`, `홈페이지`, `전화번호`, `소속학과`)
+  `실험실` (`이름`, `위치`, `면적`, `홈페이지`, `전화번호`, `소속학과`, `담당교수`)
 VALUES 
-  ("데이터베이스", 90710, 50, "db", 7600, "ENG02"),
-  ("네트워크", 90711, 40, "netwk", 7601, "ENG02"),
-  ("고성능 보안", 90711, 45, "hpsc", 7602, "ENG02"),
-  ("프로그래밍언어", 90711, 35, "pl", 7603, "ENG02"),
-  ("뉴럴 네트워크", 90711, 30, "nn", 7604, "ENG02"),
-  ("영작 및 독해", 90711, 55, "english", 7605, "LIB01"),
-  ("해석학", 90711, 30, "analysis", 7606, "EDU01"),
-  ("노동법", 90711, 40, "laborlaw", 7607, "LAW01"),
-  ("빅데이터응용", 90711, "50", "bigdata", 7608, "INT01"),
-  ("영양학", 90711, 50, "nutri", 7609, "LSN01");
+  ("데이터베이스", 90710, 50, "db", 7600, "ENG02", 10000),
+  ("네트워크", 90711, 40, "netwk", 7601, "ENG02", 10001),
+  ("고성능 보안", 90711, 45, "hpsc", 7602, "ENG02", 10002),
+  ("프로그래밍언어", 90711, 35, "pl", 7603, "ENG02", 10003),
+  ("뉴럴 네트워크", 90711, 30, "nn", 7604, "ENG02", 10004),
+  ("영작 및 독해", 90711, 55, "english", 7605, "LIB01", 10005),
+  ("해석학", 90711, 30, "analysis", 7606, "EDU01", 10006),
+  ("노동법", 90711, 40, "laborlaw", 7607, "LAW01", 10007),
+  ("빅데이터응용", 90711, "50", "bigdata", 7608, "INT01", 10008),
+  ("영양학", 90711, 50, "nutri", 7609, "LSN01", 10009);
 
 -- 수업 생성 쿼리
 INSERT INTO
