@@ -3,7 +3,7 @@
 #define ITER 1000
 void *thread_increment(void *arg);
 void *thread_decrement(void *arg);
-int x = 1; 
+int x = -1; 
 pthread_mutex_t m;
 pthread_cond_t count_nonzero;
 int main() {
@@ -15,7 +15,7 @@ int main() {
   pthread_join(tid1, NULL);
   pthread_join(tid2, NULL);
 
-  if (x != 1)
+  if (x != 0)
     printf("BOOM! counter=%d\n", x);
   else
     printf("OK counter=%d\n", x);
@@ -28,19 +28,21 @@ void * thread_increment (void *arg) {
   int i, val;
   for (i=1; i<ITER; i++) {
     pthread_mutex_lock(&m);
+    
+
+    if (x==-1) {
+      pthread_cond_signal(&count_nonzero);
+      x = 1;
+    }
 
     while (x==10) {
       pthread_cond_wait(&count_nonzero, &m);
+      pthread_mutex_unlock(&m);
       pthread_exit(NULL);
     }
 
     val = x;
     printf("%u:%d\n", (unsigned int) pthread_self(), val);
-
-    if (x == 0) {
-      pthread_cond_signal(&count_nonzero);
-    }
-
     
     x = val + 1;
     pthread_mutex_unlock(&m);
@@ -53,20 +55,21 @@ void * thread_decrement (void *arg) {
   for (i=0; i<ITER; i++) {
     pthread_mutex_lock(&m);
 
-    while (x==0) {
+    while (x==-1) {
       pthread_cond_wait(&count_nonzero, &m);
     }
 
-
     val = x;
     printf("%u:%d\n", (unsigned int) pthread_self(), val);
+    x = val - 1;
+
 
     if (x==0) {
       pthread_cond_signal(&count_nonzero);
+      pthread_mutex_unlock(&m);
       pthread_exit(NULL);
     }
 
-    x = val - 1;
     pthread_mutex_unlock(&m);
   }
   pthread_exit(NULL);
