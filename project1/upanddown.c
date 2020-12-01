@@ -3,7 +3,7 @@
 #define ITER 1000
 void *thread_increment(void *arg);
 void *thread_decrement(void *arg);
-int x = 0; 
+int x = -1; 
 pthread_mutex_t m;
 pthread_cond_t count_nonzero;
 int main() {
@@ -30,20 +30,23 @@ int main() {
 
 void * thread_increment (void *arg) {
   int i, val;
+  x = 1;
   for (i=1; i<ITER; i++) {
     pthread_mutex_lock(&m);
     
     if (x==10) {
       pthread_cond_signal(&count_nonzero);
       pthread_cond_wait(&count_nonzero, &m);
+      x = 1;
     }
-
 
     val = x;
     printf("%u:%d // i:%d\n", (unsigned int) pthread_self(), val, i);
+
     x = val + 1;
     pthread_mutex_unlock(&m);
   }
+  pthread_cond_signal(&count_nonzero);
   pthread_exit(NULL);
 }
 
@@ -52,16 +55,17 @@ void * thread_decrement (void *arg) {
   for (i=0; i<ITER; i++) {
     pthread_mutex_lock(&m);
 
-    while (x==0) {
+    while (x==-1) {
       pthread_cond_wait(&count_nonzero, &m);
     }
 
     pthread_cond_signal(&count_nonzero);
 
     val = x;
-    printf("start %u:%d // i:%d\n", (unsigned int) pthread_self(), val, i);
+    printf("%u:%d // i:%d\n", (unsigned int) pthread_self(), val, i);
     x = val - 1;
     pthread_mutex_unlock(&m);
   }
+  pthread_cond_signal(&count_nonzero);
   pthread_exit(NULL);
 }
