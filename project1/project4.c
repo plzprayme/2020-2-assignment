@@ -35,10 +35,17 @@ void * thread_increment (void *arg) {
       x = 1;
     }
 
+
+    if (x==10) {
+      pthread_cond_signal(&count_nonzero);
     while (x==10) {
-      pthread_cond_wait(&count_nonzero, &m);
-      pthread_mutex_unlock(&m);
-      pthread_exit(NULL);
+      printf("I'm WAITING FOR YOU");
+      pthread_cond_wait(&count_nonzero, &m); 
+      printf("I'm OUT FOR YOU");
+      //pthread_mutex_unlock(&m);
+      //pthread_exit(NULL);
+    }
+    continue;
     }
 
     val = x;
@@ -54,6 +61,7 @@ void * thread_decrement (void *arg) {
   int i, val;
   for (i=0; i<ITER; i++) {
     pthread_mutex_lock(&m);
+    printf("HELLOL");
 
     while (x==-1) {
       pthread_cond_wait(&count_nonzero, &m);
@@ -61,15 +69,23 @@ void * thread_decrement (void *arg) {
 
     val = x;
     printf("%u:%d\n", (unsigned int) pthread_self(), val);
-    x = val - 1;
 
-
-    if (x==0) {
+    printf("WHY?%d\n", x);
+    if (x==1) {
+	  printf("HERE?");
       pthread_cond_signal(&count_nonzero);
-      pthread_mutex_unlock(&m);
-      pthread_exit(NULL);
+      printf("OR HERE");
+      while (x==1) {
+	printf("I'm WAITING FOR ME");
+        pthread_cond_wait(&count_nonzero, &m);
+	printf("I'm OUT FOR ME");
+      }
+      continue;
+      //pthread_mutex_unlock(&m);
+      //pthread_exit(NULL);
     }
 
+    x = val - 1;
     pthread_mutex_unlock(&m);
   }
   pthread_exit(NULL);
