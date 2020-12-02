@@ -9,6 +9,8 @@ int x = -1;
 pthread_mutex_t m;
 pthread_cond_t count_nonzero;
 int main() {
+
+  // input ITER NUMS, produce NUMS
   pthread_t tid1, tid2;
   pthread_cond_init(&count_nonzero, NULL);
   pthread_mutex_init(&m, NULL);
@@ -19,8 +21,8 @@ int main() {
   pthread_join(tid1, NULL);
   pthread_join(tid2, NULL);
 
-  if (x != 0)
-    printf("BOOM! counter=%d\n", x);
+  if (x < 0 || x > 20)
+    printf("ERROR! counter=%d\n", x);
   else
     printf("OK counter=%d\n", x);
   
@@ -33,17 +35,17 @@ int main() {
 void * thread_increment (void *arg) {
   int i, val;
   x = 1;
-  for (i=0; i<PRODUCER_ITER; i++) {
+  for (i=0; i<50; i++) {
     pthread_mutex_lock(&m);
     
-    if (x==10) {
+    if (x==20) {
       pthread_cond_signal(&count_nonzero);
       pthread_cond_wait(&count_nonzero, &m);
       x = 2;
     }
 
     val = x;
-    printf("%u:%d\n", (unsigned int) pthread_self(), val, i);
+    printf("Producer>> %u:%d\n", (unsigned int) pthread_self(), val);
 
     x = val + 1;
     pthread_mutex_unlock(&m);
@@ -54,7 +56,7 @@ void * thread_increment (void *arg) {
 
 void * thread_decrement (void *arg) {
   int i, val;
-  for (i=0; i<CONSUMER_ITER; i++) {
+  for (i=0; i<50; i++) {
     pthread_mutex_lock(&m);
 
     if (x<1) {
@@ -64,7 +66,7 @@ void * thread_decrement (void *arg) {
 
 
     val = x;
-    printf("%u:%d\n", (unsigned int) pthread_self(), val, i);
+    printf("Consumer<< %u:%d\n", (unsigned int) pthread_self(), val);
     x = val - 1;
     pthread_mutex_unlock(&m);
   }
