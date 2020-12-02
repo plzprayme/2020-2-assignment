@@ -1,29 +1,21 @@
 #include <pthread.h>
 #include <stdio.h>
-#define ITER 10
-#define PRODUCER_ITER ITER * 8 + 1
-#define CONSUMER_ITER ITER * 10
 
 void *thread_increment(void *arg);
 void *thread_decrement(void *arg);
 
+pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t count_nonzero = PTHREAD_COND_INITIALIZER;
 int x = -1; 
 
-pthread_mutex_t m;
-pthread_cond_t count_nonzero;
-
-int main() {
+void main() {
 
   int iter_nums;
   int *p = &iter_nums;
-
   printf("<< input iter nums: ");
   scanf("%d", &iter_nums);
 
   pthread_t tid1, tid2;
-  pthread_cond_init(&count_nonzero, NULL);
-  pthread_mutex_init(&m, NULL);
-
   pthread_create(&tid1, NULL, thread_increment, p);
   pthread_create(&tid2, NULL, thread_decrement, p);
   
@@ -37,23 +29,20 @@ int main() {
   
   pthread_mutex_destroy(&m);
   pthread_cond_destroy(&count_nonzero);
-  
-  return 0;
 }
 
 void * thread_increment (void *arg) {
-  int i;
-  x = 1;
+  int i; x = 1;
   for (i=0; i<*(int*)arg; i++) {
     pthread_mutex_lock(&m);
     
     if (x==10) {
       pthread_cond_signal(&count_nonzero);
       pthread_cond_wait(&count_nonzero, &m);
-      x++;
+      x=2;
     }
 
-    printf("Producer>> %u:%d\n", (unsigned int) pthread_self(), x);
+    printf(">> Producer|%u::%d\n", (unsigned int) pthread_self(), x);
 
     ++x;
     pthread_mutex_unlock(&m);
@@ -72,7 +61,7 @@ void * thread_decrement (void *arg) {
       pthread_cond_wait(&count_nonzero, &m);
     }
 
-    printf("Consumer<< %u:%d\n", (unsigned int) pthread_self(), x);
+    printf("<< Consumer|%u::%d\n", (unsigned int) pthread_self(), x);
     --x;
     pthread_mutex_unlock(&m);
   }
