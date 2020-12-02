@@ -1,6 +1,8 @@
 #include <pthread.h>
 #include <stdio.h>
-#define ITER 1000
+#define ITER 10
+#define PRODUCER_ITER ITER * 8 + 1
+#define CONSUMER_ITER ITER * 10
 void *thread_increment(void *arg);
 void *thread_decrement(void *arg);
 int x = -1; 
@@ -31,17 +33,17 @@ int main() {
 void * thread_increment (void *arg) {
   int i, val;
   x = 1;
-  for (i=1; i<ITER; i++) {
+  for (i=0; i<PRODUCER_ITER; i++) {
     pthread_mutex_lock(&m);
     
     if (x==10) {
       pthread_cond_signal(&count_nonzero);
       pthread_cond_wait(&count_nonzero, &m);
-      x = 1;
+      x = 2;
     }
 
     val = x;
-    printf("%u:%d // i:%d\n", (unsigned int) pthread_self(), val, i);
+    printf("%u:%d\n", (unsigned int) pthread_self(), val, i);
 
     x = val + 1;
     pthread_mutex_unlock(&m);
@@ -52,20 +54,19 @@ void * thread_increment (void *arg) {
 
 void * thread_decrement (void *arg) {
   int i, val;
-  for (i=0; i<ITER; i++) {
+  for (i=0; i<CONSUMER_ITER; i++) {
     pthread_mutex_lock(&m);
 
-    while (x==-1) {
+    if (x<1) {
+      pthread_cond_signal(&count_nonzero);
       pthread_cond_wait(&count_nonzero, &m);
     }
 
-    pthread_cond_signal(&count_nonzero);
 
     val = x;
-    printf("%u:%d // i:%d\n", (unsigned int) pthread_self(), val, i);
+    printf("%u:%d\n", (unsigned int) pthread_self(), val, i);
     x = val - 1;
     pthread_mutex_unlock(&m);
   }
-  pthread_cond_signal(&count_nonzero);
   pthread_exit(NULL);
 }
