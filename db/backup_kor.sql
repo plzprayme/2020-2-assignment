@@ -1,16 +1,4 @@
--- MySQL Workbench Forward Engineering
-
--- -----------------------------------------------------
--- Schema mydb
--- -----------------------------------------------------
--- -----------------------------------------------------
--- Schema 20180639_황성찬_DB프로그래밍
--- -----------------------------------------------------
 DROP SCHEMA IF EXISTS `20180639_황성찬_DB프로그래밍` ;
-
--- -----------------------------------------------------
--- Schema 20180639_황성찬_DB프로그래밍
--- -----------------------------------------------------
 CREATE SCHEMA IF NOT EXISTS `20180639_황성찬_DB프로그래밍` DEFAULT CHARACTER SET utf8mb4 ;
 USE `20180639_황성찬_DB프로그래밍` ;
 
@@ -26,7 +14,7 @@ CREATE TABLE IF NOT EXISTS `학과` (
   `졸업학점` INT(3) NOT NULL,
   `학과정원` INT(3) NOT NULL,
   PRIMARY KEY (`학과코드`),
-  UNIQUE INDEX `name` (`이름` ASC))
+  UNIQUE INDEX `name` (`이름` ASC)) -- 학과 이름은 중복 불가
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
@@ -44,10 +32,10 @@ CREATE TABLE IF NOT EXISTS `교수` (
   `연구실위치` INT(6) NOT NULL,
   `전공` VARCHAR(30) NOT NULL,
   PRIMARY KEY (`사번`),
-  UNIQUE INDEX `location` (`연구실위치` ASC))
+  UNIQUE INDEX `location` (`연구실위치` ASC)) -- 교수님은 연구실을 단독으로 사용해야만 한다.
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
-ALTER TABLE `교수` AUTO_INCREMENT=10000;
+ALTER TABLE `교수` AUTO_INCREMENT=10000; -- 사번은 10000부터 1씩 증가
 
 -- -----------------------------------------------------
 -- Table `실험실`
@@ -60,14 +48,14 @@ CREATE TABLE IF NOT EXISTS `실험실` (
   `홈페이지` VARCHAR(50) NOT NULL,
   `전화번호` INT(4) NOT NULL,
   `소속학과` VARCHAR(5) NOT NULL,
-  `담당교수` INT(5) NOT NULL UNIQUE,
+  `담당교수` INT(5) NOT NULL UNIQUE, -- 교수님과 실험실은 1:1 관계이다.
   PRIMARY KEY (`이름`),
   CONSTRAINT `facilities_ibfk_1`
     FOREIGN KEY (`소속학과`)
-    REFERENCES `학과` (`학과코드`) ON UPDATE CASCADE,
+    REFERENCES `학과` (`학과코드`) ON UPDATE CASCADE, -- 참조하고 있는 값이 변경되면 외래키도 변경된다.
   CONSTRAINT `facilities_ibfk_2`
     FOREIGN KEY (`담당교수`)
-    REFERENCES `교수` (`사번`) ON UPDATE CASCADE)
+    REFERENCES `교수` (`사번`) ON UPDATE CASCADE) -- 참조하고 있는 값이 변경되면 외래키도 변경된다.
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
@@ -86,13 +74,13 @@ CREATE TABLE IF NOT EXISTS `수업` (
   PRIMARY KEY (`학수번호`),
   CONSTRAINT `lectures_ibfk_1`
     FOREIGN KEY (`담당교수`)
-    REFERENCES `교수` (`사번`) ON UPDATE CASCADE)
+    REFERENCES `교수` (`사번`) ON UPDATE CASCADE) -- 참조하고 있는 값이 변경되면 외래키도 변경된다.
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
 
 -- -----------------------------------------------------
--- Table `교수_학과`
+-- Table `교수_학과` 교수와 학과는 M:N 관계
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `교수_학과` ;
 CREATE TABLE IF NOT EXISTS `교수_학과` (
@@ -100,10 +88,10 @@ CREATE TABLE IF NOT EXISTS `교수_학과` (
   `소속학과` VARCHAR(5) NOT NULL,
   CONSTRAINT `professors_departments_ibfk_1`
     FOREIGN KEY (`교수`)
-    REFERENCES `교수` (`사번`) ON UPDATE CASCADE ON DELETE CASCADE,
+    REFERENCES `교수` (`사번`) ON UPDATE CASCADE ON DELETE CASCADE, -- 참조하고 있는 값이 변경되면 외래키도 변경되며 참조하고 있는 값이 지워지면 함께 지워진다.
   CONSTRAINT `professors_departments_ibfk_2`
     FOREIGN KEY (`소속학과`)
-    REFERENCES `학과` (`학과코드`) ON UPDATE CASCADE)
+    REFERENCES `학과` (`학과코드`) ON UPDATE CASCADE) -- 참조하고 있는 값이 변경되면 외래키도 변경된다.
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
@@ -124,13 +112,13 @@ CREATE TABLE IF NOT EXISTS `학생` (
   UNIQUE INDEX `identity_number` (`주민등록번호` ASC),
   CONSTRAINT `students_ibfk_1`
     FOREIGN KEY (`소속실험실`)
-    REFERENCES `실험실` (`이름`) ON UPDATE CASCADE ON DELETE SET NULL,
+    REFERENCES `실험실` (`이름`) ON UPDATE CASCADE ON DELETE SET NULL, -- 참조하고 있는 값이 변경되면 외래키도 변경되며 실험실이 폐쇄되면 외래키가 NULL로 바뀐다.
   CONSTRAINT `students_ibfk_2`
     FOREIGN KEY (`소속학과`)
-    REFERENCES `학과` (`학과코드`) ON UPDATE CASCADE,
+    REFERENCES `학과` (`학과코드`) ON UPDATE CASCADE, -- 참조하고 있는 값이 변경되면 외래키도 변경된다.
   CONSTRAINT `students_ibfk_3`
     FOREIGN KEY (`멘토교수`)
-    REFERENCES `교수` (`사번`) ON UPDATE CASCADE)
+    REFERENCES `교수` (`사번`) ON UPDATE CASCADE) -- 참조하고 있는 값이 변경되면 외래키도 변경된다.
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
@@ -138,11 +126,12 @@ DEFAULT CHARACTER SET = utf8mb4;
 -- -----------------------------------------------------
 -- Table `학생_수업`
 -- -----------------------------------------------------
+-- 학생은 한 수업을 중복해서 수강할 수 없다. 그래서 `학생_수업`.`학번`, `학생_수업`.`학번`을 복합 유니크 인덱스로 지정하여 중복된 값이 저장될 수 없도록 지정했다.
 DROP TABLE IF EXISTS `학생_수업` ;
 CREATE TABLE IF NOT EXISTS `학생_수업` (
   `학번` INT(8) NOT NULL,
   `학수번호` INT(5) NOT NULL,
-  UNIQUE INDEX `uix_student_lecture` (`학번`, `학수번호`),
+  UNIQUE INDEX `uix_student_lecture` (`학번`, `학수번호`), -- 복합 유니크 인덱스
   CONSTRAINT `students_lectures_ibfk_1`
     FOREIGN KEY (`학번`)
     REFERENCES `학생` (`학번`) ON UPDATE CASCADE,
@@ -237,140 +226,9 @@ VALUES
 
 
 -- 학생_수업 매핑 쿼리
+-- 복합 인덱스를 걸어놓은 덕분에 중복된 값을 INSERT하려고 하면 무시한다.
+-- 무시하는 명령어: IGNORE
 INSERT IGNORE INTO
   `학생_수업` (`학번`, `학수번호`)
 VALUES
   (20180639, 10000),(20180639, 10000), (20180639, 10001), (20180639, 10002), (20180639, 10003), (20180639, 10000);
-
-
--- 학생 중심 관계
--- 학생 전체 조회
-SELECT
- *
-FROM 
-  `학생`
-
--- 특정 학생의 수강중인 수업 전체 조회
-SELECT 
-  `수업`.* 
-FROM 
-  `학생_수업` 
-JOIN `수업` ON `수업`.`학수번호` = `학생_수업`.`학수번호`
-WHERE `학번` = 20180639
-
--- 학생의 멘토교수 정보 조회
-SELECT
-  `교수`.*
-FROM
-  `학생`
-JOIN `교수` ON `교수`.`사번` = `학생`.`멘토교수`
-WHERE `학번` = 20180639
-
--- 학생의 소속실험실 정보 조회
-SELECT
-  `실험실`.*
-FROM
-  `학생`
-JOIN `실험실` ON `실험실`.`이름` = `학생`.`소속실험실`
-WHERE `학번` = 20180639
-
--- 학생의 소속학과 정보 조회
-SELECT
-  `학과`.*
-FROM
-  `학생`
-JOIN `학과` ON `학과`.`학과코드` = `학생`.`소속학과`
-WHERE `학번` = 20180639
-
--- 교수 중심 관계
-
--- 교수 전체 조회
-SELECT 
-  *
-FROM
-  `교수`
-
--- 교수 소속 학과 전체 조회
-SELECT
-  `학과`.*
-FROM
-  `교수_학과`
-JOIN `학과` ON `교수_학과`.`소속학과` = `학과`.`학과코드`
-WHERE `교수` = 10000
-
--- 교수 담당 학생들 전체 조회
-SELECT
-  *
-FROM
-  `학생`
-WHERE `멘토교수` = 10000
-
--- 교수 담당 수업 전체 조회
-SELECT
-  *
-FROM
-  `수업`
-WHERE `담당교수` = 10000
-
--- 교수 담당 실험실 조회
-SELECT
-  *
-FROM
-  `실험실`
-WHERE `담당교수` = 10000
-
--- 수업과의 관계
-
--- 전체 수업 조회
-SELECT
-  *
-FROM
-  `수업`
-
--- 특정 수업의 수강생 전체 조회
-SELECT 
-  `학생`.*
-FROM
-  `학생_수업`
-JOIN `학생` ON `학생`.`학번` = `학생_수업`.`학번`
-WHERE `학수번호` = 10000
-
-
-
-
--- 학과와의 관계
--- 학과 전체 조회
-SELECT
-  *
-FROM
-  `학과`
-
--- 학과 소속 교수 조회
-SELECT
-  *
-FROM
-  `교수`
-JOIN `교수_학과` ON `교수_학과`.`소속학과` = "ENG01"
-WHERE `사번` = `교수_학과`.`교수`
-
--- 학과 소속 학생 조회
-SELECT
-  *
-FROM
-  `학생`
-WHERE `소속학과` = "ENG01"
-
--- 학과 소속 실험실 조회
-SELECT
-  *
-FROM
-  `실험실`
-WHERE `소속학과` = "ENG02"
-
--- 실험실 전체 조회
-SELECT
-  `이름`,`위치`,`면적`,`소속학과`,`담당교수`,
-  CONCAT("042-649-",`전화번호`) AS "전화번호",
-  CONCAT("https://",CONCAT(`홈페이지`, ".hannam.ac.kr")) AS "홈페이지"
-FROM
-  `실험실`
