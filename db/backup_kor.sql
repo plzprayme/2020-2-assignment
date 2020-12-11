@@ -2,8 +2,7 @@ DROP SCHEMA IF EXISTS `20180639_황성찬_DB프로그래밍` ;
 CREATE SCHEMA IF NOT EXISTS `20180639_황성찬_DB프로그래밍` DEFAULT CHARACTER SET utf8mb4 ;
 USE `20180639_황성찬_DB프로그래밍` ;
 
--- 모든 외래키는 기본적으로 모두 UPDATE CASCACDE 이다.
-
+-- 모든 외래키는 기본적으로 모두 UPDATE CASCACDE 입니다.
 -- -----------------------------------------------------
 -- Table `학과`
 -- -----------------------------------------------------
@@ -129,6 +128,7 @@ DEFAULT CHARACTER SET = utf8mb4;
 -- Table `학생_수업`
 -- -----------------------------------------------------
 -- 학생은 한 수업을 중복해서 수강할 수 없다. 그래서 `학생_수업`.`학번`, `학생_수업`.`학번`을 복합 유니크 인덱스로 지정하여 중복된 값이 저장될 수 없도록 지정했다.
+-- 나중에 데이터를 INSERT 할 때 IGNORE 명령어를 통해 중복 데이터를 INSERT 하지 않는다.
 DROP TABLE IF EXISTS `학생_수업` ;
 CREATE TABLE IF NOT EXISTS `학생_수업` (
   `학번` INT(8) NOT NULL,
